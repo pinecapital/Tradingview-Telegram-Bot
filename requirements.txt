@@ -1,0 +1,6 @@
+Flask 
+selenium 
+pandas
+tabulate
+python-telegram-bot==13.7
+python-dotenv
