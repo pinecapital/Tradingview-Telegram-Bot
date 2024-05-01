@@ -23,7 +23,7 @@ async def send_alert(message: str):
     except TelegramError as e:
         print(f"Error sending message: {e}")
 
-def send_message(message: str):
+def sendMessage(message: str):
     asyncio.run(send_alert(message))
 
 
@@ -31,4 +31,4 @@ def send_message(message: str):
 # Example usage
 if __name__ == "__main__":
     message_content = "Hello, Telegram! This is a test message from my bot."
-    send_message(message_content)
+    sendMessage(message_content)

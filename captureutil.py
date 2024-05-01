@@ -9,10 +9,18 @@ from threading import Thread
 import telegrambot
 from tkinter import Tk
 import os 
+import pyperclip
+
 from dotenv import load_dotenv
 
 load_dotenv()
 
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from datetime import datetime
 
 def setup():
     print('--->Setup selenium start : ' + str(datetime.now()))
@@ -21,13 +29,17 @@ def setup():
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--force-dark-mode')
     chrome_options.add_argument("--window-size=1280,720")
-    capabilities = {
-        # "resolution": "2560X1440"
-        # "resolution": "1280X720"
-        "resolution": "768X432"
-    }
-    driver = webdriver.Chrome(options=chrome_options,
-                              desired_capabilities=capabilities)
+    chrome_options.add_experimental_option("prefs", {
+        # "resolution": "768X432"  # Adjust this as needed
+        "resolution": "1280X720"
+        # "resolution": "1920X1080"
+
+    })
+
+    # Set up WebDriver with ChromeDriverManager
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+    
     print('Setup selenium complete')
     return driver
 
@@ -37,6 +49,7 @@ def screenshot(driver, chart, ticker, adjustment=100):
 
     chartUrl = config.urls["tvchart"] + chart + '/' + (
         '?symbol=' + ticker) if ticker != 'NONE' else ''
+    print('Chart URL :', chartUrl)
 
     driver.get(chartUrl)
     print('Sleep for 10 seconds - wait for chart to load')
@@ -50,7 +63,7 @@ def screenshot(driver, chart, ticker, adjustment=100):
     ActionChains(driver).key_down(Keys.ALT).key_down('s').key_up(
         Keys.ALT).perform()
     time.sleep(3)
-    clipboard = Tk().clipboard_get()
+    clipboard = pyperclip.paste()  # get the clipboard content
     return clipboard
 
 

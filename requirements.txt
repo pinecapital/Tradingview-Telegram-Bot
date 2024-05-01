@@ -4,3 +4,7 @@ pandas
 tabulate
 python-telegram-bot==13.7
 python-dotenv
+requests
+webdriver-manager
+pyperclip
+
