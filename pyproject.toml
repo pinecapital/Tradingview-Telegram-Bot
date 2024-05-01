@@ -5,7 +5,7 @@ description = ""
 authors = ["pinecapital"]
 
 [tool.poetry.dependencies]
-python = "^3.11.5"
+python = "^3.10.13"
 Flask = "^3.0.3"
 python-telegram-bot = "^13.7"
 selenium = "^4.20.0"
