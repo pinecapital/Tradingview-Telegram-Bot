@@ -2,13 +2,11 @@ from telegram import Bot
 from telegram.error import TelegramError
 import asyncio
 
-from dotenv import load_dotenv
 import os
 
-load_dotenv()  # This loads the environment variables from the .env file into the environment
 
-TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
-TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
+TELEGRAM_TOKEN =  os.environ.get('TELEGRAM_TOKEN')
+TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
 
 if not TELEGRAM_TOKEN:
     raise ValueError("TELEGRAM_TOKEN is not set in the environment.")
