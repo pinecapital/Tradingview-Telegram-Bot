@@ -26,7 +26,7 @@ def setup():
     print('--->Setup selenium start : ' + str(datetime.now()))
     chrome_options = Options()
     chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument("--headless") 
+    # chrome_options.add_argument("--headless") 
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--force-dark-mode')
     chrome_options.add_argument("--window-size=1280,720")
@@ -64,7 +64,7 @@ def screenshot(driver, chart, ticker, adjustment=100):
     ActionChains(driver).key_down(Keys.ALT).key_down('s').key_up(
         Keys.ALT).perform()
     time.sleep(3)
-    clipboard = pyperclip.paste()  # get the clipboard content
+    clipboard = Tk().clipboard_get()
     return clipboard
 
 
