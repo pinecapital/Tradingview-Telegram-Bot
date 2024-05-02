@@ -1,34 +1,35 @@
-from telegram import Bot
-from telegram.error import TelegramError
 import asyncio
-
-from dotenv import load_dotenv
+from telethon.sync import TelegramClient
 import os
 
-load_dotenv()  # This loads the environment variables from the .env file into the environment
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
+api_id = os.getenv("API_ID")
+api_hash = os.getenv("API_HASH")
+username = os.getenv("TELEGRAM_USERNAME")
 
-TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
-TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
+def sendMessage(message, photo_path=None):
+    # Manually create a new event loop for the thread
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 
-if not TELEGRAM_TOKEN:
-    raise ValueError("TELEGRAM_TOKEN is not set in the environment.")
+    with TelegramClient('session_name', api_id, api_hash) as client:
+        if photo_path and os.path.exists(photo_path):
+            try:
+                # Send the photo with caption
+                client.send_file(username, file=photo_path, caption=message)
+                os.remove(photo_path)  # Optionally remove the photo after sending
+            except Exception as e:
+                print("Error sending photo:", e)
+        else:
+            try:
+                # Send a plain message
+                client.send_message(username, message)
+            except Exception as e:
+                print(f"Error sending message to {username}:", e)
 
+    loop.close()  # Close the event loop after operations
 
-bot = Bot(token=TELEGRAM_TOKEN)
-
-async def send_alert(message: str):
-    loop = asyncio.get_event_loop()
-    try:
-        await loop.run_in_executor(None, bot.send_message, TELEGRAM_CHAT_ID, message)
-    except TelegramError as e:
-        print(f"Error sending message: {e}")
-
-def sendMessage(message: str):
-    asyncio.run(send_alert(message))
-
-
-
-# Example usage
 if __name__ == "__main__":
-    message_content = "Hello, Telegram! This is a test message from my bot."
-    sendMessage(message_content)
+    sendMessage("This is a photo caption.", "./photo.png")

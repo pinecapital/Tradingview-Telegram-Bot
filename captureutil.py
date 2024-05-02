@@ -27,7 +27,9 @@ def setup():
     chrome_options = Options()
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument('--force-dark-mode')
+    chrome_options.add_argument("--headless")  # Run Chrome in headless mode.
+    # chrome_options.add_argument("--disable-gpu")  # Disable GPU hardware acceleration.
+   
     chrome_options.add_argument("--window-size=1280,720")
     chrome_options.add_experimental_option("prefs", {
         # "resolution": "768X432"  # Adjust this as needed
@@ -44,7 +46,9 @@ def setup():
     return driver
 
 
-def screenshot(driver, chart, ticker, adjustment=100):
+def screenshot(driver, chart, ticker, adjustment=100,save_path='./photo.png'):
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
     print('--->Opening Chart ' + chart + ' : ' + str(datetime.now()))
 
     chartUrl = config.urls["tvchart"] + chart + '/' + (
@@ -63,8 +67,12 @@ def screenshot(driver, chart, ticker, adjustment=100):
     ActionChains(driver).key_down(Keys.ALT).key_down('s').key_up(
         Keys.ALT).perform()
     time.sleep(3)
-    clipboard = pyperclip.paste()  # get the clipboard content
-    return clipboard
+    # clipboard = pyperclip.paste()  # get the clipboard content
+    driver.save_screenshot(save_path)
+    print(f"Screenshot saved at {save_path}")
+
+    return save_path
+    # return clipboard
 
 
 def quit_browser(driver):
@@ -75,20 +83,27 @@ def quit_browser(driver):
 
 def send_chart(chart, ticker, message, delivery):
     driver = setup()
-    driver.get("https://www.tradingview.com")
-    # sessionId = db["sessionid"] if 'sessionid' in db.keys() else 'abcd'
-    sessionId = os.getenv('sessionid')
-    print('Session Id Used :', sessionId)
-    driver.add_cookie({
-        'name': 'sessionid',
-        'value': sessionId,
-        'domain': '.tradingview.com'
-    })
-    screenshot_url = screenshot(driver, chart, ticker)
-    if (delivery != 'asap'):
-        telegrambot.sendMessage(message)
-    telegrambot.sendMessage(screenshot_url)
-    quit_browser(driver)
+    try:
+        driver.get("https://www.tradingview.com")
+        sessionId = os.getenv('sessionid')
+        print('Session Id Used :', sessionId)
+        driver.add_cookie({
+            'name': 'sessionid',
+            'value': sessionId,
+            'domain': '.tradingview.com'
+        })
+        screenshot_path = screenshot(driver, chart, ticker)
+
+        if delivery != 'asap':
+            if os.path.exists(screenshot_path):
+
+                telegrambot.sendMessage(message, screenshot_path)  # Include the actual screenshot
+            else:
+                print("Screenshot not found, sending message only.")
+                telegrambot.sendMessage(message)
+    finally:
+        quit_browser(driver)
+
 
 
 def send_chart_async(chartUrl, ticker='NONE', message='', delivery='asap'):

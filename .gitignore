@@ -4,3 +4,4 @@ __pycache__/
 .breakpoints
 .vscode/
 poetry.lock
+session_name.session
